@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>たしざんゲーム</title>
+<style>
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family:"Hiragino Sans","Yu Gothic",sans-serif;
+  background:linear-gradient(180deg,#7dd3fc,#fde68a);
+  height:100dvh;
+  display:flex;
+  justify-content:center;
+  overflow:hidden;
+}
+.app{
+  width:100%;
+  max-width:430px;
+  height:100dvh;
+  background:#fffaf0;
+  padding:clamp(10px,3vh,20px);
+  display:flex;
+  flex-direction:column;
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+  padding-bottom:max(clamp(10px,3vh,20px), env(safe-area-inset-bottom));
+}
+.header{
+  background:linear-gradient(135deg,#fb923c,#facc15);
+  color:white;
+  border-radius:0 0 28px 28px;
+  padding:clamp(10px,2.5vh,24px) 18px;
+  margin:clamp(-10px,-3vh,-20px) clamp(-10px,-3vh,-20px) clamp(8px,2vh,20px);
+  text-align:center;
+  flex:0 0 auto;
+}
+h1{margin:0;font-size:clamp(20px,5.5vh,30px)}
+.header p{margin:4px 0 0;font-size:clamp(11px,1.8vh,14px)}
+.panel{
+  background:white;
+  border-radius:24px;
+  padding:clamp(8px,2vh,18px);
+  margin-bottom:clamp(8px,2vh,16px);
+  box-shadow:0 6px 18px rgba(0,0,0,.08);
+  flex:0 0 auto;
+}
+.status{display:flex;gap:10px}
+.badge{
+  flex:1;
+  background:#fef3c7;
+  border-radius:18px;
+  padding:clamp(6px,1.5vh,12px);
+  font-size:clamp(13px,2.2vh,17px);
+  font-weight:bold;
+  text-align:center;
+}
+select,input{
+  width:100%;
+  font-size:clamp(15px,2.2vh,20px);
+  padding:clamp(8px,1.5vh,12px);
+  border-radius:16px;
+  border:2px solid #fde68a;
+}
+.question{
+  font-size:clamp(32px,7.5vh,54px);
+  font-weight:bold;
+  text-align:center;
+  margin:clamp(10px,2.5vh,22px) 0;
+  color:#fb923c;
+}
+input{
+  font-size:clamp(26px,5vh,40px);
+  text-align:center;
+  border:3px solid #facc15;
+}
+.buttons{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:clamp(8px,1.5vh,12px);
+  margin-top:clamp(8px,1.5vh,16px);
+}
+button{
+  font-size:clamp(14px,2vh,18px);
+  font-weight:bold;
+  padding:clamp(10px,1.8vh,14px);
+  border:none;
+  border-radius:20px;
+  color:white;
+  box-shadow:0 5px 0 rgba(0,0,0,.15);
+}
+button:active{transform:translateY(3px)}
+.answer-btn{background:#22c55e;grid-column:span 2}
+.start-btn{background:#3b82f6}
+.reset-btn{background:#ef4444}
+.bgm-btn{background:#8b5cf6;grid-column:span 2}
+.character{
+  font-size:clamp(44px,9vh,84px);
+  text-align:center;
+  animation:bounce 1s infinite alternate;
+}
+.speech{
+  margin:clamp(6px,1.2vh,10px) auto;
+  background:#fff7ed;
+  border-radius:20px;
+  padding:clamp(8px,1.5vh,14px);
+  font-size:clamp(15px,2.5vh,22px);
+  font-weight:bold;
+  text-align:center;
+}
+.message,.reward{
+  text-align:center;
+  font-size:clamp(16px,3vh,26px);
+  min-height:clamp(20px,3vh,36px);
+  margin-top:clamp(6px,1.5vh,12px);
+  font-weight:bold;
+}
+.reward{font-size:clamp(18px,3.8vh,32px)}
+.footer{text-align:center;color:#92400e;font-size:11px;margin-top:auto;padding-top:6px;flex:0 0 auto}
+.star{
+  position:fixed;
+  font-size:28px;
+  animation:fly 1s forwards;
+}
+.credit{
+  position:fixed;
+  right:10px;
+  bottom:calc(10px + env(safe-area-inset-bottom));
+  font-size:10px;
+  color:#92400e;
+  opacity:.85;
+  pointer-events:none;
+  z-index:5;
+}
+@keyframes bounce{
+  from{transform:translateY(0)}
+  to{transform:translateY(-8px)}
+}
+@keyframes fly{
+  from{opacity:1;transform:translateY(0) scale(1)}
+  to{opacity:0;transform:translateY(-120px) scale(1.8)}
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="header">
+    <h1>🧮 たしざんゲーム</h1>
+    <p>ネコ先生とウサギちゃんとあそぼう！</p>
+  </div>
+
+  <div class="panel">
+    <select id="level">
+      <option value="easy">🌱 かんたん 1〜10</option>
+      <option value="normal">⭐ ふつう 1〜20</option>
+      <option value="hard">🔥 むずかしい 10〜50</option>
+    </select>
+  </div>
+
+  <div class="panel status">
+    <div class="badge">スコア<br><span id="score">0</span></div>
+    <div class="badge">ハイスコア<br><span id="highScore">0</span></div>
+    <div class="badge">のこり<br><span id="time">60</span>びょう</div>
+  </div>
+
+  <div class="panel">
+    <div id="character" class="character">🐱</div>
+    <div id="speech" class="speech">スタートをおしてね！</div>
+
+    <div class="question">
+      <span id="num1">?</span> + <span id="num2">?</span>
+    </div>
+
+    <input id="answer" type="number" placeholder="こたえ">
+
+    <div class="buttons">
+      <button class="answer-btn" onclick="checkAnswer()">こたえる</button>
+      <button class="start-btn" onclick="startGame()">スタート</button>
+      <button class="reset-btn" onclick="resetGame()">リセット</button>
+      <button class="bgm-btn" onclick="toggleBgm()">BGM ON / OFF</button>
+    </div>
+
+    <div class="message" id="result"></div>
+    <div class="reward" id="reward"></div>
+  </div>
+
+  <div class="footer">BGM：大きな古時計 風メロディ 🎵</div>
+</div>
+
+<div class="credit">Produced by Shimofuri</div>
+
+<script>
+let num1=0,num2=0,score=0,timeLeft=60,timer=null,playing=false;
+let combo=0;
+let bgmOn=false,bgmTimer=null,bgmAudio=null;
+let bgmIndex=0;
+
+const highScoreKey="additionGameHighScore";
+document.getElementById("highScore").textContent=localStorage.getItem(highScoreKey)||0;
+
+/* 大きな古時計 風メロディ */
+const melody=[
+  ["G4",500],["C5",500],["C5",500],["D5",500],
+  ["E5",700],["D5",300],["C5",500],["D5",500],
+  ["E5",500],["E5",500],["D5",500],["C5",500],
+  ["D5",900],["G4",700],
+
+  ["G4",500],["C5",500],["C5",500],["D5",500],
+  ["E5",700],["D5",300],["C5",500],["D5",500],
+  ["E5",500],["D5",500],["C5",500],["B4",500],
+  ["C5",1000],
+
+  ["E5",500],["E5",500],["F5",500],["G5",500],
+  ["G5",700],["F5",300],["E5",500],["D5",500],
+  ["E5",500],["D5",500],["C5",500],["B4",500],
+  ["C5",1000],
+
+  ["G4",500],["C5",500],["D5",500],["E5",500],
+  ["F5",500],["E5",500],["D5",500],["C5",500],
+  ["D5",500],["E5",500],["D5",500],["B4",500],
+  ["C5",1200]
+];
+
+function noteToFreq(note){
+  return {
+    C4:261.63,D4:293.66,E4:329.63,F4:349.23,G4:392,A4:440,B4:493.88,
+    C5:523.25,D5:587.33,E5:659.25,F5:698.46,G5:783.99,A5:880
+  }[note];
+}
+
+function playTone(freq,duration=0.15,type="triangle",volume=0.12){
+  const audio=new AudioContext();
+  const osc=audio.createOscillator();
+  const gain=audio.createGain();
+  osc.type=type;
+  osc.frequency.value=freq;
+  gain.gain.value=volume;
+  osc.connect(gain);
+  gain.connect(audio.destination);
+  osc.start();
+  osc.stop(audio.currentTime+duration);
+}
+
+function playSound(type){
+  if(type==="correct") playTone(880,.12);
+  if(type==="wrong") playTone(180,.18,"sawtooth",.08);
+  if(type==="finish") playTone(660,.35);
+  if(type==="fanfare"){
+    setTimeout(()=>playTone(660,.15),0);
+    setTimeout(()=>playTone(880,.15),180);
+    setTimeout(()=>playTone(1046,.25),360);
+  }
+}
+
+function playBgmNote(note,duration){
+  if(!bgmAudio) bgmAudio=new AudioContext();
+
+  const osc=bgmAudio.createOscillator();
+  const gain=bgmAudio.createGain();
+
+  osc.type="triangle";
+  osc.frequency.value=noteToFreq(note);
+  gain.gain.setValueAtTime(0.045,bgmAudio.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001,bgmAudio.currentTime+duration/1000);
+
+  osc.connect(gain);
+  gain.connect(bgmAudio.destination);
+
+  osc.start();
+  osc.stop(bgmAudio.currentTime+duration/1000);
+}
+
+function startBgm(){
+  if(bgmOn)return;
+  bgmOn=true;
+
+  function next(){
+    if(!bgmOn)return;
+
+    const item=melody[bgmIndex];
+    const note=item[0];
+    const duration=item[1];
+
+    playBgmNote(note,duration);
+
+    bgmIndex++;
+    if(bgmIndex>=melody.length) bgmIndex=0;
+
+    bgmTimer=setTimeout(next,duration+40);
+  }
+
+  next();
+}
+
+function stopBgm(){
+  bgmOn=false;
+  clearTimeout(bgmTimer);
+}
+
+function toggleBgm(){
+  bgmOn ? stopBgm() : startBgm();
+}
+
+function speak(text,animal="cat"){
+  document.getElementById("character").textContent=animal==="cat"?"🐱":"🐰";
+  document.getElementById("speech").textContent=text;
+
+  if("speechSynthesis" in window){
+    speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(text);
+    u.lang="ja-JP";
+    u.rate=1;
+    u.pitch=1.5;
+    speechSynthesis.speak(u);
+  }
+}
+
+function getRange(){
+  const level=document.getElementById("level").value;
+  if(level==="easy")return[1,10];
+  if(level==="normal")return[1,20];
+  return[10,50];
+}
+
+function randomNumber(min,max){
+  return Math.floor(Math.random()*(max-min+1))+min;
+}
+
+function newQuestion(){
+  const range=getRange();
+  num1=randomNumber(range[0],range[1]);
+  num2=randomNumber(range[0],range[1]);
+
+  document.getElementById("num1").textContent=num1;
+  document.getElementById("num2").textContent=num2;
+  document.getElementById("answer").value="";
+  document.getElementById("result").textContent="";
+  document.getElementById("answer").focus();
+}
+
+function startGame(){
+  resetGame();
+  playing=true;
+  speak("いっしょに がんばろう！","cat");
+  startBgm();
+  newQuestion();
+
+  timer=setInterval(()=>{
+    timeLeft--;
+    document.getElementById("time").textContent=timeLeft;
+    if(timeLeft<=0)endGame();
+  },1000);
+}
+
+function checkAnswer(){
+  if(!playing){
+    speak("スタートをおしてね！","cat");
+    return;
+  }
+
+  const answer=Number(document.getElementById("answer").value);
+  const correct=num1+num2;
+
+  if(answer===correct){
+    score++;
+    combo++;
+
+    document.getElementById("score").textContent=score;
+    playSound("correct");
+    starEffect();
+
+    const words=["せいかい！","やったね！","すごい！","そのちょうし！","かっこいい！"];
+
+    if(combo>=3){
+      speak("きみは てんさいかも！","cat");
+      combo=0;
+    }else{
+      speak(words[Math.floor(Math.random()*words.length)],"cat");
+    }
+
+    setTimeout(newQuestion,600);
+  }else{
+    combo=0;
+    playSound("wrong");
+    speak("だいじょうぶ！もういっかい！","rabbit");
+  }
+}
+
+function endGame(){
+  clearInterval(timer);
+  playing=false;
+  stopBgm();
+  playSound("finish");
+
+  const oldHigh=Number(localStorage.getItem(highScoreKey)||0);
+  if(score>oldHigh){
+    localStorage.setItem(highScoreKey,score);
+    document.getElementById("highScore").textContent=score;
+  }
+
+  let message="";
+  if(score>=40){message="👑 たしざんキング！";playSound("fanfare")}
+  else if(score>=30){message="🥇 ゴールドメダル！";playSound("fanfare")}
+  else if(score>=20){message="🥈 シルバーメダル！";playSound("fanfare")}
+  else if(score>=10){message="🥉 ブロンズメダル！"}
+  else if(score>=5){message="😊 がんばったね！"}
+  else{message="🌱 またやってみよう！"}
+
+  document.getElementById("result").textContent="おしまい！";
+  document.getElementById("reward").textContent=message;
+  speak("きょうも よく がんばったね！","rabbit");
+}
+
+function resetGame(){
+  clearInterval(timer);
+  stopBgm();
+
+  if("speechSynthesis" in window){
+    speechSynthesis.cancel();
+  }
+
+  score=0;
+  combo=0;
+  timeLeft=60;
+  playing=false;
+
+  document.getElementById("score").textContent=0;
+  document.getElementById("time").textContent=60;
+  document.getElementById("num1").textContent="?";
+  document.getElementById("num2").textContent="?";
+  document.getElementById("answer").value="";
+  document.getElementById("result").textContent="";
+  document.getElementById("reward").textContent="";
+  document.getElementById("character").textContent="🐱";
+  document.getElementById("speech").textContent="スタートをおしてね！";
+}
+
+function starEffect(){
+  for(let i=0;i<8;i++){
+    const s=document.createElement("div");
+    s.className="star";
+    s.textContent=["⭐","🎊","✨","🌟"][Math.floor(Math.random()*4)];
+    s.style.left=Math.random()*90+"vw";
+    s.style.top=60+Math.random()*20+"vh";
+    document.body.appendChild(s);
+    setTimeout(()=>s.remove(),1000);
+  }
+}
+
+document.getElementById("answer").addEventListener("keydown",e=>{
+  if(e.key==="Enter")checkAnswer();
+});
+
+resetGame();
+</script>
+
+</body>
+</html>
