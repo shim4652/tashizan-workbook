@@ -124,6 +124,16 @@ button:active{transform:translateY(3px)}
   font-size:28px;
   animation:fly 1s forwards;
 }
+.credit{
+  position:fixed;
+  right:10px;
+  bottom:calc(10px + env(safe-area-inset-bottom));
+  font-size:10px;
+  color:#92400e;
+  opacity:.85;
+  pointer-events:none;
+  z-index:5;
+}
 @keyframes bounce{
   from{transform:translateY(0)}
   to{transform:translateY(-8px)}
@@ -179,6 +189,8 @@ button:active{transform:translateY(3px)}
 
   <div class="footer">BGM：大きな古時計 風メロディ 🎵</div>
 </div>
+
+<div class="credit">Produced by Shimofuri</div>
 
 <script>
 let num1=0,num2=0,score=0,timeLeft=60,timer=null,playing=false;
