@@ -280,15 +280,15 @@ button:active{transform:translateY(3px)}
         </div>
 
         <div class="keypad">
-          <button class="key-btn" onclick="pressDigit('1')">1</button>
-          <button class="key-btn" onclick="pressDigit('2')">2</button>
-          <button class="key-btn" onclick="pressDigit('3')">3</button>
-          <button class="key-btn" onclick="pressDigit('4')">4</button>
-          <button class="key-btn" onclick="pressDigit('5')">5</button>
-          <button class="key-btn" onclick="pressDigit('6')">6</button>
           <button class="key-btn" onclick="pressDigit('7')">7</button>
           <button class="key-btn" onclick="pressDigit('8')">8</button>
           <button class="key-btn" onclick="pressDigit('9')">9</button>
+          <button class="key-btn" onclick="pressDigit('4')">4</button>
+          <button class="key-btn" onclick="pressDigit('5')">5</button>
+          <button class="key-btn" onclick="pressDigit('6')">6</button>
+          <button class="key-btn" onclick="pressDigit('1')">1</button>
+          <button class="key-btn" onclick="pressDigit('2')">2</button>
+          <button class="key-btn" onclick="pressDigit('3')">3</button>
           <button class="key-btn key-clear" onclick="pressClear()">けす</button>
           <button class="key-btn" onclick="pressDigit('0')">0</button>
           <button class="key-btn key-back" onclick="pressBackspace()">⌫</button>
@@ -309,6 +309,7 @@ button:active{transform:translateY(3px)}
 <script>
 let num1=0,num2=0,score=0,timeLeft=60,timer=null,playing=false;
 let combo=0;
+let noMistake=true;
 let currentAnswer="";
 let bgmOn=false,bgmTimer=null,bgmAudio=null;
 let bgmIndex=0;
@@ -367,6 +368,13 @@ function playSound(type){
     setTimeout(()=>playTone(660,.15),0);
     setTimeout(()=>playTone(880,.15),180);
     setTimeout(()=>playTone(1046,.25),360);
+  }
+  if(type==="perfect"){
+    setTimeout(()=>playTone(523.25,.15),0);
+    setTimeout(()=>playTone(659.25,.15),150);
+    setTimeout(()=>playTone(783.99,.15),300);
+    setTimeout(()=>playTone(1046.5,.2),450);
+    setTimeout(()=>playTone(1318.5,.35),650);
   }
 }
 
@@ -532,6 +540,7 @@ function checkAnswer(){
     setTimeout(newQuestion,600);
   }else{
     combo=0;
+    noMistake=false;
     playSound("wrong");
     speak("だいじょうぶ！もういっかい！","rabbit");
   }
@@ -557,9 +566,17 @@ function endGame(){
   else if(score>=5){message="😊 がんばったね！"}
   else{message="🌱 またやってみよう！"}
 
+  if(noMistake && score>0){
+    message="🎉 おめでとう！ぜんもんせいかい！パーフェクト！ 🎉<br>"+message;
+    playSound("perfect");
+    starEffect();
+    setTimeout(starEffect,300);
+    setTimeout(starEffect,600);
+  }
+
   document.getElementById("result").textContent="おしまい！";
-  document.getElementById("reward").textContent=message;
-  speak("きょうも よく がんばったね！","rabbit");
+  document.getElementById("reward").innerHTML=message;
+  speak(noMistake && score>0 ? "パーフェクト！すごいよ！" : "きょうも よく がんばったね！","rabbit");
 }
 
 function resetGame(){
@@ -572,6 +589,7 @@ function resetGame(){
 
   score=0;
   combo=0;
+  noMistake=true;
   timeLeft=60;
   playing=false;
 
