@@ -76,6 +76,36 @@ input{
   text-align:center;
   border:3px solid #facc15;
 }
+.answer-display{
+  font-size:clamp(28px,5.5vh,44px);
+  font-weight:bold;
+  text-align:center;
+  border:3px solid #facc15;
+  border-radius:16px;
+  padding:clamp(8px,1.2vh,10px);
+  background:#fffde7;
+  color:#374151;
+  min-height:1.3em;
+}
+.keypad{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:clamp(6px,1.2vh,10px);
+  margin-top:clamp(8px,1.5vh,12px);
+}
+.key-btn{
+  background:#60a5fa;
+  color:white;
+  font-size:clamp(18px,3.5vh,28px);
+  font-weight:bold;
+  padding:clamp(8px,1.6vh,14px);
+  border:none;
+  border-radius:16px;
+  box-shadow:0 5px 0 rgba(0,0,0,.15);
+}
+.key-btn:active{transform:translateY(3px)}
+.key-clear{background:#f87171;font-size:clamp(14px,2.2vh,18px)}
+.key-back{background:#fbbf24}
 .buttons{
   display:grid;
   grid-template-columns:1fr 1fr;
@@ -174,7 +204,22 @@ button:active{transform:translateY(3px)}
       <span id="num1">?</span> + <span id="num2">?</span>
     </div>
 
-    <input id="answer" type="number" placeholder="こたえ">
+    <div class="answer-display" id="answerDisplay">&nbsp;</div>
+
+    <div class="keypad">
+      <button class="key-btn" onclick="pressDigit('1')">1</button>
+      <button class="key-btn" onclick="pressDigit('2')">2</button>
+      <button class="key-btn" onclick="pressDigit('3')">3</button>
+      <button class="key-btn" onclick="pressDigit('4')">4</button>
+      <button class="key-btn" onclick="pressDigit('5')">5</button>
+      <button class="key-btn" onclick="pressDigit('6')">6</button>
+      <button class="key-btn" onclick="pressDigit('7')">7</button>
+      <button class="key-btn" onclick="pressDigit('8')">8</button>
+      <button class="key-btn" onclick="pressDigit('9')">9</button>
+      <button class="key-btn key-clear" onclick="pressClear()">けす</button>
+      <button class="key-btn" onclick="pressDigit('0')">0</button>
+      <button class="key-btn key-back" onclick="pressBackspace()">⌫</button>
+    </div>
 
     <div class="buttons">
       <button class="answer-btn" onclick="checkAnswer()">こたえる</button>
@@ -195,6 +240,7 @@ button:active{transform:translateY(3px)}
 <script>
 let num1=0,num2=0,score=0,timeLeft=60,timer=null,playing=false;
 let combo=0;
+let currentAnswer="";
 let bgmOn=false,bgmTimer=null,bgmAudio=null;
 let bgmIndex=0;
 
@@ -336,9 +382,35 @@ function newQuestion(){
 
   document.getElementById("num1").textContent=num1;
   document.getElementById("num2").textContent=num2;
-  document.getElementById("answer").value="";
+  currentAnswer="";
+  updateDisplay();
   document.getElementById("result").textContent="";
-  document.getElementById("answer").focus();
+}
+
+function updateDisplay(){
+  document.getElementById("answerDisplay").innerHTML=currentAnswer===""?"&nbsp;":currentAnswer;
+}
+
+function pressDigit(d){
+  if(!playing){
+    speak("スタートをおしてね！","cat");
+    return;
+  }
+  if(currentAnswer.length>=3)return;
+  currentAnswer+=d;
+  updateDisplay();
+}
+
+function pressBackspace(){
+  if(!playing)return;
+  currentAnswer=currentAnswer.slice(0,-1);
+  updateDisplay();
+}
+
+function pressClear(){
+  if(!playing)return;
+  currentAnswer="";
+  updateDisplay();
 }
 
 function startGame(){
@@ -361,7 +433,12 @@ function checkAnswer(){
     return;
   }
 
-  const answer=Number(document.getElementById("answer").value);
+  if(currentAnswer===""){
+    speak("すうじを おしてね！","rabbit");
+    return;
+  }
+
+  const answer=Number(currentAnswer);
   const correct=num1+num2;
 
   if(answer===correct){
@@ -431,7 +508,8 @@ function resetGame(){
   document.getElementById("time").textContent=60;
   document.getElementById("num1").textContent="?";
   document.getElementById("num2").textContent="?";
-  document.getElementById("answer").value="";
+  currentAnswer="";
+  updateDisplay();
   document.getElementById("result").textContent="";
   document.getElementById("reward").textContent="";
   document.getElementById("character").textContent="🐱";
@@ -449,10 +527,6 @@ function starEffect(){
     setTimeout(()=>s.remove(),1000);
   }
 }
-
-document.getElementById("answer").addEventListener("keydown",e=>{
-  if(e.key==="Enter")checkAnswer();
-});
 
 resetGame();
 </script>
