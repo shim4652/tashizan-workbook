@@ -21,133 +21,191 @@ body{
   max-width:430px;
   height:100dvh;
   background:#fffaf0;
-  padding:clamp(10px,3vh,20px);
+  padding:clamp(10px,3vmin,20px);
   display:flex;
   flex-direction:column;
   overflow-y:auto;
   -webkit-overflow-scrolling:touch;
-  padding-bottom:max(clamp(10px,3vh,20px), env(safe-area-inset-bottom));
+  padding-bottom:max(clamp(10px,3vmin,20px), env(safe-area-inset-bottom));
 }
 .header{
+  position:relative;
   background:linear-gradient(135deg,#fb923c,#facc15);
   color:white;
   border-radius:0 0 28px 28px;
-  padding:clamp(10px,2.5vh,24px) 18px;
-  margin:clamp(-10px,-3vh,-20px) clamp(-10px,-3vh,-20px) clamp(8px,2vh,20px);
+  padding:clamp(10px,2.5vmin,24px) 18px;
+  margin:clamp(-10px,-3vmin,-20px) clamp(-10px,-3vmin,-20px) clamp(8px,2vmin,20px);
   text-align:center;
   flex:0 0 auto;
 }
-h1{margin:0;font-size:clamp(20px,5.5vh,30px)}
-.header p{margin:4px 0 0;font-size:clamp(11px,1.8vh,14px)}
+.bgm-toggle{
+  position:absolute;
+  top:clamp(6px,1.5vmin,14px);
+  right:clamp(6px,1.5vmin,14px);
+  width:clamp(30px,5vmin,40px);
+  height:clamp(30px,5vmin,40px);
+  padding:0;
+  border-radius:50%;
+  background:rgba(255,255,255,.25);
+  font-size:clamp(14px,2.2vmin,18px);
+  box-shadow:none;
+  opacity:.45;
+}
+.bgm-toggle:active{transform:translateY(2px)}
+h1{margin:0;font-size:clamp(20px,5.5vmin,30px)}
+.header p{margin:4px 0 0;font-size:clamp(11px,1.8vmin,14px)}
 .panel{
   background:white;
   border-radius:24px;
-  padding:clamp(8px,2vh,18px);
-  margin-bottom:clamp(8px,2vh,16px);
+  padding:clamp(8px,2vmin,18px);
+  margin-bottom:clamp(8px,2vmin,16px);
   box-shadow:0 6px 18px rgba(0,0,0,.08);
   flex:0 0 auto;
+}
+.main-grid{
+  display:flex;
+  flex-direction:column;
+  flex:1;
+  min-height:0;
+}
+.left-col,.right-col{
+  display:flex;
+  flex-direction:column;
+  min-width:0;
+}
+@media (orientation:landscape) and (min-aspect-ratio:1/1){
+  .app{max-width:min(94vw,760px)}
+  .main-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:clamp(8px,2vmin,16px);
+    align-items:start;
+  }
+  .left-col,.right-col{margin-bottom:0}
+  .char-panel{margin-bottom:0}
+  .keypad-panel{margin-bottom:0}
 }
 .status{display:flex;gap:10px}
 .badge{
   flex:1;
   background:#fef3c7;
   border-radius:18px;
-  padding:clamp(6px,1.5vh,12px);
-  font-size:clamp(13px,2.2vh,17px);
+  padding:clamp(6px,1.5vmin,12px);
+  font-size:clamp(13px,2.2vmin,17px);
   font-weight:bold;
   text-align:center;
 }
 select,input{
   width:100%;
-  font-size:clamp(15px,2.2vh,20px);
-  padding:clamp(8px,1.5vh,12px);
+  font-size:clamp(15px,2.2vmin,20px);
+  padding:clamp(8px,1.5vmin,12px);
   border-radius:16px;
   border:2px solid #fde68a;
 }
 .question{
-  font-size:clamp(32px,7.5vh,54px);
+  font-size:clamp(32px,7.5vmin,54px);
   font-weight:bold;
   text-align:center;
-  margin:clamp(10px,2.5vh,22px) 0;
+  margin:clamp(10px,2.5vmin,22px) 0;
   color:#fb923c;
 }
 input{
-  font-size:clamp(26px,5vh,40px);
+  font-size:clamp(26px,5vmin,40px);
   text-align:center;
   border:3px solid #facc15;
 }
+.answer-row{
+  display:flex;
+  align-items:stretch;
+  gap:clamp(6px,1.5vmin,10px);
+}
 .answer-display{
-  font-size:clamp(28px,5.5vh,44px);
+  flex:1;
+  min-width:0;
+  font-size:clamp(28px,5.5vmin,44px);
   font-weight:bold;
   text-align:center;
   border:3px solid #facc15;
   border-radius:16px;
-  padding:clamp(8px,1.2vh,10px);
+  padding:clamp(8px,1.2vmin,10px);
   background:#fffde7;
   color:#374151;
   min-height:1.3em;
 }
+.answer-row .answer-btn{
+  flex:0 0 auto;
+  width:clamp(80px,22vmin,120px);
+  font-size:clamp(14px,2.4vmin,19px);
+  box-shadow:0 5px 0 rgba(0,0,0,.15);
+}
 .keypad{
   display:grid;
   grid-template-columns:repeat(3,1fr);
-  gap:clamp(6px,1.2vh,10px);
-  margin-top:clamp(8px,1.5vh,12px);
+  gap:clamp(6px,1.2vmin,10px);
+  margin-top:clamp(8px,1.5vmin,12px);
 }
 .key-btn{
   background:#60a5fa;
   color:white;
-  font-size:clamp(18px,3.5vh,28px);
+  font-size:clamp(18px,3.5vmin,28px);
   font-weight:bold;
-  padding:clamp(8px,1.6vh,14px);
+  padding:clamp(8px,1.6vmin,14px);
   border:none;
   border-radius:16px;
   box-shadow:0 5px 0 rgba(0,0,0,.15);
 }
 .key-btn:active{transform:translateY(3px)}
-.key-clear{background:#f87171;font-size:clamp(14px,2.2vh,18px)}
+.key-clear{background:#f87171;font-size:clamp(14px,2.2vmin,18px)}
 .key-back{background:#fbbf24}
 .buttons{
   display:grid;
   grid-template-columns:1fr 1fr;
-  gap:clamp(8px,1.5vh,12px);
-  margin-top:clamp(8px,1.5vh,16px);
+  gap:clamp(8px,1.5vmin,12px);
+  margin-top:clamp(8px,1.5vmin,16px);
 }
 button{
-  font-size:clamp(14px,2vh,18px);
+  font-size:clamp(13px,2vmin,17px);
   font-weight:bold;
-  padding:clamp(10px,1.8vh,14px);
+  padding:clamp(10px,1.8vmin,14px) clamp(4px,1vmin,8px);
   border:none;
   border-radius:20px;
   color:white;
   box-shadow:0 5px 0 rgba(0,0,0,.15);
 }
 button:active{transform:translateY(3px)}
-.answer-btn{background:#22c55e;grid-column:span 2}
+.answer-btn{background:#22c55e}
 .start-btn{background:#3b82f6}
 .reset-btn{background:#ef4444}
-.bgm-btn{background:#8b5cf6;grid-column:span 2}
+.char-row{
+  display:flex;
+  align-items:center;
+  gap:clamp(8px,2vmin,14px);
+}
 .character{
-  font-size:clamp(44px,9vh,84px);
+  flex:0 0 auto;
+  font-size:clamp(38px,8vmin,72px);
   text-align:center;
   animation:bounce 1s infinite alternate;
 }
 .speech{
-  margin:clamp(6px,1.2vh,10px) auto;
+  flex:1;
+  min-width:0;
+  margin:0;
   background:#fff7ed;
   border-radius:20px;
-  padding:clamp(8px,1.5vh,14px);
-  font-size:clamp(15px,2.5vh,22px);
+  padding:clamp(8px,1.5vmin,14px);
+  font-size:clamp(14px,2.3vmin,20px);
   font-weight:bold;
-  text-align:center;
+  text-align:left;
 }
 .message,.reward{
   text-align:center;
-  font-size:clamp(16px,3vh,26px);
-  min-height:clamp(20px,3vh,36px);
-  margin-top:clamp(6px,1.5vh,12px);
+  font-size:clamp(16px,3vmin,26px);
+  min-height:clamp(20px,3vmin,36px);
+  margin-top:clamp(6px,1.5vmin,12px);
   font-weight:bold;
 }
-.reward{font-size:clamp(18px,3.8vh,32px)}
+.reward{font-size:clamp(18px,3.8vmin,32px)}
 .footer{text-align:center;color:#92400e;font-size:11px;margin-top:auto;padding-top:6px;flex:0 0 auto}
 .star{
   position:fixed;
@@ -178,61 +236,72 @@ button:active{transform:translateY(3px)}
 
 <div class="app">
   <div class="header">
+    <button class="bgm-toggle" id="bgmToggle" onclick="toggleBgm()" title="BGM ON/OFF">🎵</button>
     <h1>🧮 たしざんゲーム</h1>
     <p>ネコ先生とウサギちゃんとあそぼう！</p>
   </div>
 
-  <div class="panel">
-    <select id="level">
-      <option value="easy">🌱 かんたん 1〜10</option>
-      <option value="normal">⭐ ふつう 1〜20</option>
-      <option value="hard">🔥 むずかしい 10〜50</option>
-    </select>
-  </div>
+  <div class="main-grid">
+    <div class="left-col">
+      <div class="panel">
+        <select id="level">
+          <option value="easy">🌱 かんたん 1〜10</option>
+          <option value="normal">⭐ ふつう 1〜20</option>
+          <option value="hard">🔥 むずかしい 10〜50</option>
+        </select>
+      </div>
 
-  <div class="panel status">
-    <div class="badge">スコア<br><span id="score">0</span></div>
-    <div class="badge">ハイスコア<br><span id="highScore">0</span></div>
-    <div class="badge">のこり<br><span id="time">60</span>びょう</div>
-  </div>
+      <div class="panel status">
+        <div class="badge">スコア<br><span id="score">0</span></div>
+        <div class="badge">ハイスコア<br><span id="highScore">0</span></div>
+        <div class="badge">のこり<br><span id="time">60</span>びょう</div>
+      </div>
 
-  <div class="panel">
-    <div id="character" class="character">🐱</div>
-    <div id="speech" class="speech">スタートをおしてね！</div>
+      <div class="panel char-panel">
+        <div class="char-row">
+          <div id="character" class="character">🐱</div>
+          <div id="speech" class="speech">スタートをおしてね！</div>
+        </div>
 
-    <div class="question">
-      <span id="num1">?</span> + <span id="num2">?</span>
+        <div class="question">
+          <span id="num1">?</span> + <span id="num2">?</span>
+        </div>
+
+        <div class="message" id="result"></div>
+        <div class="reward" id="reward"></div>
+      </div>
     </div>
 
-    <div class="answer-display" id="answerDisplay">&nbsp;</div>
+    <div class="right-col">
+      <div class="panel keypad-panel">
+        <div class="answer-row">
+          <div class="answer-display" id="answerDisplay">&nbsp;</div>
+          <button class="answer-btn" onclick="checkAnswer()">こたえる</button>
+        </div>
 
-    <div class="keypad">
-      <button class="key-btn" onclick="pressDigit('1')">1</button>
-      <button class="key-btn" onclick="pressDigit('2')">2</button>
-      <button class="key-btn" onclick="pressDigit('3')">3</button>
-      <button class="key-btn" onclick="pressDigit('4')">4</button>
-      <button class="key-btn" onclick="pressDigit('5')">5</button>
-      <button class="key-btn" onclick="pressDigit('6')">6</button>
-      <button class="key-btn" onclick="pressDigit('7')">7</button>
-      <button class="key-btn" onclick="pressDigit('8')">8</button>
-      <button class="key-btn" onclick="pressDigit('9')">9</button>
-      <button class="key-btn key-clear" onclick="pressClear()">けす</button>
-      <button class="key-btn" onclick="pressDigit('0')">0</button>
-      <button class="key-btn key-back" onclick="pressBackspace()">⌫</button>
+        <div class="keypad">
+          <button class="key-btn" onclick="pressDigit('1')">1</button>
+          <button class="key-btn" onclick="pressDigit('2')">2</button>
+          <button class="key-btn" onclick="pressDigit('3')">3</button>
+          <button class="key-btn" onclick="pressDigit('4')">4</button>
+          <button class="key-btn" onclick="pressDigit('5')">5</button>
+          <button class="key-btn" onclick="pressDigit('6')">6</button>
+          <button class="key-btn" onclick="pressDigit('7')">7</button>
+          <button class="key-btn" onclick="pressDigit('8')">8</button>
+          <button class="key-btn" onclick="pressDigit('9')">9</button>
+          <button class="key-btn key-clear" onclick="pressClear()">けす</button>
+          <button class="key-btn" onclick="pressDigit('0')">0</button>
+          <button class="key-btn key-back" onclick="pressBackspace()">⌫</button>
+        </div>
+
+        <div class="buttons">
+          <button class="start-btn" onclick="startGame()">スタート</button>
+          <button class="reset-btn" onclick="resetGame()">リセット</button>
+        </div>
+      </div>
     </div>
-
-    <div class="buttons">
-      <button class="answer-btn" onclick="checkAnswer()">こたえる</button>
-      <button class="start-btn" onclick="startGame()">スタート</button>
-      <button class="reset-btn" onclick="resetGame()">リセット</button>
-      <button class="bgm-btn" onclick="toggleBgm()">BGM ON / OFF</button>
-    </div>
-
-    <div class="message" id="result"></div>
-    <div class="reward" id="reward"></div>
   </div>
 
-  <div class="footer">BGM：大きな古時計 風メロディ 🎵</div>
 </div>
 
 <div class="credit">Produced by Shimofuri</div>
@@ -348,6 +417,7 @@ function stopBgm(){
 
 function toggleBgm(){
   bgmOn ? stopBgm() : startBgm();
+  document.getElementById("bgmToggle").style.opacity=bgmOn?"1":"0.45";
 }
 
 function speak(text,animal="cat"){
@@ -418,6 +488,7 @@ function startGame(){
   playing=true;
   speak("いっしょに がんばろう！","cat");
   startBgm();
+  document.getElementById("bgmToggle").style.opacity="1";
   newQuestion();
 
   timer=setInterval(()=>{
@@ -514,6 +585,7 @@ function resetGame(){
   document.getElementById("reward").textContent="";
   document.getElementById("character").textContent="🐱";
   document.getElementById("speech").textContent="スタートをおしてね！";
+  document.getElementById("bgmToggle").style.opacity="0.45";
 }
 
 function starEffect(){
