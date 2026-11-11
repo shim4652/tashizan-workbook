@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="ja" class="no-js">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -12,21 +12,27 @@ body{
   font-family:"Hiragino Sans","Yu Gothic",sans-serif;
   background:linear-gradient(180deg,#7dd3fc,#fde68a);
   height:100dvh;
+  width:100vw;
   display:flex;
   justify-content:center;
+  align-items:flex-start;
   overflow:hidden;
 }
 .app{
   width:100%;
   max-width:430px;
-  height:100dvh;
+  height:auto;
   background:#fffaf0;
   padding:clamp(10px,3vmin,20px);
   display:flex;
   flex-direction:column;
+  padding-bottom:max(clamp(10px,3vmin,20px), env(safe-area-inset-bottom));
+  transform-origin:top center;
+}
+.no-js .app{
+  max-height:100dvh;
   overflow-y:auto;
   -webkit-overflow-scrolling:touch;
-  padding-bottom:max(clamp(10px,3vmin,20px), env(safe-area-inset-bottom));
 }
 .header{
   position:relative;
@@ -73,6 +79,37 @@ h1{margin:0;font-size:clamp(20px,5.5vmin,30px)}
   flex-direction:column;
   min-width:0;
 }
+.screen{
+  display:flex;
+  flex-direction:column;
+  flex:1;
+  min-height:0;
+}
+.screen-title{
+  text-align:center;
+  font-size:clamp(16px,3vmin,22px);
+  font-weight:bold;
+  color:#92400e;
+  margin:0 0 clamp(10px,2vmin,16px);
+}
+.choice-list{
+  display:flex;
+  flex-direction:column;
+  gap:clamp(10px,2vmin,14px);
+}
+.choice-btn{
+  background:linear-gradient(135deg,#60a5fa,#38bdf8);
+  color:white;
+  font-size:clamp(16px,3vmin,22px);
+  font-weight:bold;
+  padding:clamp(16px,3.5vmin,24px);
+  border:none;
+  border-radius:20px;
+  box-shadow:0 5px 0 rgba(0,0,0,.15);
+}
+.choice-btn:active{transform:translateY(3px)}
+.buttons.single{grid-template-columns:1fr}
+.finish-btn{background:#fb923c}
 @media (orientation:landscape) and (min-aspect-ratio:1/1){
   .app{max-width:min(94vw,760px)}
   .main-grid{
@@ -241,20 +278,37 @@ button:active{transform:translateY(3px)}
     <p>ネコ先生とウサギちゃんとあそぼう！</p>
   </div>
 
-  <div class="main-grid">
-    <div class="left-col">
-      <div class="panel">
-        <select id="level">
-          <option value="easy">🌱 かんたん 1〜10</option>
-          <option value="normal">⭐ ふつう 1〜20</option>
-          <option value="hard">🔥 むずかしい 10〜50</option>
-        </select>
+  <div id="screen-time" class="screen">
+    <div class="panel">
+      <p class="screen-title">⏱ せいげん時間をえらんでね</p>
+      <div class="choice-list">
+        <button class="choice-btn" onclick="chooseTimeLimit(0)">① カウントなし</button>
+        <button class="choice-btn" onclick="chooseTimeLimit(60)">② 1ぷん</button>
+        <button class="choice-btn" onclick="chooseTimeLimit(180)">③ 3ぷん</button>
       </div>
+    </div>
+  </div>
 
+  <div id="screen-level" class="screen" style="display:none">
+    <div class="panel">
+      <p class="screen-title">📚 レベルをえらんでね</p>
+      <select id="level">
+        <option value="easy">🌱 かんたん 1〜10</option>
+        <option value="normal">⭐ ふつう 1〜20</option>
+        <option value="hard">🔥 むずかしい 10〜50</option>
+      </select>
+    </div>
+    <div class="buttons single">
+      <button class="start-btn" onclick="beginDrill()">スタート</button>
+    </div>
+  </div>
+
+  <div id="screen-drill" class="main-grid" style="display:none">
+    <div class="left-col">
       <div class="panel status">
         <div class="badge">スコア<br><span id="score">0</span></div>
         <div class="badge">ハイスコア<br><span id="highScore">0</span></div>
-        <div class="badge">のこり<br><span id="time">60</span>びょう</div>
+        <div class="badge"><span id="timeLabel">のこり</span><br><span id="time">60</span>びょう</div>
       </div>
 
       <div class="panel char-panel">
@@ -295,8 +349,8 @@ button:active{transform:translateY(3px)}
         </div>
 
         <div class="buttons">
-          <button class="start-btn" onclick="startGame()">スタート</button>
-          <button class="reset-btn" onclick="resetGame()">リセット</button>
+          <button class="finish-btn" onclick="finishDrill()">おわる</button>
+          <button class="reset-btn" onclick="backToStart()">さいしょから</button>
         </div>
       </div>
     </div>
@@ -307,12 +361,15 @@ button:active{transform:translateY(3px)}
 <div class="credit">Produced by Shimofuri</div>
 
 <script>
+document.documentElement.classList.remove("no-js");
+
 let num1=0,num2=0,score=0,timeLeft=60,timer=null,playing=false;
 let combo=0;
 let noMistake=true;
 let currentAnswer="";
 let bgmOn=false,bgmTimer=null,bgmAudio=null;
 let bgmIndex=0;
+let chosenTimeLimit=60;
 
 const highScoreKey="additionGameHighScore";
 document.getElementById("highScore").textContent=localStorage.getItem(highScoreKey)||0;
@@ -491,6 +548,33 @@ function pressClear(){
   updateDisplay();
 }
 
+function showScreen(name){
+  document.getElementById("screen-time").style.display=name==="time"?"":"none";
+  document.getElementById("screen-level").style.display=name==="level"?"":"none";
+  document.getElementById("screen-drill").style.display=name==="drill"?"":"none";
+  fitToScreen();
+}
+
+function chooseTimeLimit(seconds){
+  chosenTimeLimit=seconds;
+  showScreen("level");
+}
+
+function beginDrill(){
+  showScreen("drill");
+  startGame();
+}
+
+function backToStart(){
+  resetGame();
+  showScreen("time");
+}
+
+function finishDrill(){
+  if(!playing)return;
+  endGame();
+}
+
 function startGame(){
   resetGame();
   playing=true;
@@ -500,9 +584,14 @@ function startGame(){
   newQuestion();
 
   timer=setInterval(()=>{
-    timeLeft--;
-    document.getElementById("time").textContent=timeLeft;
-    if(timeLeft<=0)endGame();
+    if(chosenTimeLimit>0){
+      timeLeft--;
+      document.getElementById("time").textContent=timeLeft;
+      if(timeLeft<=0)endGame();
+    }else{
+      timeLeft++;
+      document.getElementById("time").textContent=timeLeft;
+    }
   },1000);
 }
 
@@ -577,6 +666,7 @@ function endGame(){
   document.getElementById("result").textContent="おしまい！";
   document.getElementById("reward").innerHTML=message;
   speak(noMistake && score>0 ? "パーフェクト！すごいよ！" : "きょうも よく がんばったね！","rabbit");
+  fitToScreen();
 }
 
 function resetGame(){
@@ -590,11 +680,12 @@ function resetGame(){
   score=0;
   combo=0;
   noMistake=true;
-  timeLeft=60;
+  timeLeft=chosenTimeLimit>0?chosenTimeLimit:0;
   playing=false;
 
   document.getElementById("score").textContent=0;
-  document.getElementById("time").textContent=60;
+  document.getElementById("timeLabel").textContent=chosenTimeLimit>0?"のこり":"けいか";
+  document.getElementById("time").textContent=timeLeft;
   document.getElementById("num1").textContent="?";
   document.getElementById("num2").textContent="?";
   currentAnswer="";
@@ -619,6 +710,29 @@ function starEffect(){
 }
 
 resetGame();
+showScreen("time");
+
+/* 画面サイズ（横幅・たて高さ）に合わせて全体を自動で縮小表示する */
+function fitToScreen(){
+  const app=document.querySelector(".app");
+  app.style.transform="scale(1)";
+
+  const naturalWidth=app.offsetWidth;
+  const naturalHeight=app.scrollHeight;
+  const availWidth=window.innerWidth;
+  const availHeight=window.visualViewport?window.visualViewport.height:window.innerHeight;
+
+  const scale=Math.min(availWidth/naturalWidth,availHeight/naturalHeight,1);
+  app.style.transform="scale("+scale+")";
+}
+
+window.addEventListener("load",fitToScreen);
+window.addEventListener("resize",fitToScreen);
+window.addEventListener("orientationchange",()=>setTimeout(fitToScreen,150));
+if(window.visualViewport){
+  window.visualViewport.addEventListener("resize",fitToScreen);
+}
+fitToScreen();
 </script>
 
 </body>
